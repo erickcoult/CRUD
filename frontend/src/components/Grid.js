@@ -17,20 +17,57 @@ word-break: break-all;
 
 export const Thead = styled.thead``;
 
+export const Tbody = styled.tbody``;
+
 export const Tr = styled.tr``;
 
+export const Th = styled.th`
+text-align: start;
+border-bottom: inset;
+padding-bottom: 5px;
 
-const Grid = () => {
+@media (max-width: 500px){
+    ${(props) => props.onlyWeb && "display: none"}
+}
+`;
+
+export const Td = styled.td`
+padding-top: 15px;
+text-align: ${(props)=> (props.alignCenter ? "center" : "start")};
+width: ${(props)=> (props.width ? props.width: "auto")};
+
+@media (max-width: 500px){
+    ${(props) => props.onlyWeb && "display: nome"}
+}
+`
+
+const Grid = ({users}) => {
     return(
         <Table>
             <Thead>
                 <Tr>
+                    <Th>Nome</Th>
+                    <Th>Email</Th>
+                    <Th onlyWeb>Fone</Th>
                     <Th></Th>
                     <Th></Th>
                 </Tr>
             </Thead>
-                </Tr>
-            </Thead>
+            <Tbody>
+                {users.map((item, i)=> (
+                    <Tr key={i}>
+                        <Td width="30%">{item.nome}</Td>
+                        <Td width="30%">{item.email}</Td>
+                        <Td width="20%" onlyWeb>{item.fone}</Td>
+                        <Td alignCenter width="5%">
+                            <FaEdit/>
+                        </Td>
+                        <Td alignCenter width="5%">
+                            <FaTrash onClick={() => handleDelete(item.id)} />
+                        </Td>
+                    </Tr>
+                ))}
+            </Tbody>
         </Table>
     );
 };
