@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
 const FormContainer = styled.form`
@@ -39,6 +39,17 @@ const Button = styled.button`
 
 const Form = ({ onEdit }) => {
   const ref = useRef();
+
+  useEffect(() => {
+    if (onEdit){
+      const user = ref.current;
+
+      user.nome.value = onEdit.nome;
+      user.email.value = onEdit.email;
+      user.fone.value = onEdit.fone;
+      user.data_nascimento.value = onEdit.data_nascimento;
+    }
+  })
   return (
     <FormContainer ref={ref}>
       <InputArea>
