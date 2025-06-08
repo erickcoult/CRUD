@@ -1,7 +1,7 @@
-import axios from "axios"
-import React, { useEffect, useRef } from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import {toast} from "react";
+import { toast } from "react-toastify";
 
 const FormContainer = styled.form`
   display: flex;
@@ -39,86 +39,102 @@ const Button = styled.button`
   height: 42px;
 `;
 
-const Form = ({getUsers, onEdit, setOnEdit }) => {
-  const ref = useRef();
+const Form = ({ getUsers, onEdit, setOnEdit }) => {
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [fone, setFone] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
 
   useEffect(() => {
-    if (onEdit){
-      const user = ref.current;
-
-      user.nome.value = onEdit.nome;
-      user.email.value = onEdit.email;
-      user.fone.value = onEdit.fone;
-      user.data_nascimento.value = onEdit.data_nascimento;
+    if (onEdit) {
+      setNome(onEdit.nome);
+      setEmail(onEdit.email);
+      setFone(onEdit.fone);
+      setDataNascimento(onEdit.data_nascimento);
     }
-  })
+  }, [onEdit]);
+
+  const clearForm = () => {
+    setNome("");
+    setEmail("");
+    setFone("");
+    setDataNascimento("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const user = ref.current;
-
-    if(
-      !user.nome.value ||
-      !user.email.value ||
-      !user.fone.value ||
-      !user.data_nascimento.value
-    ){
+    if (!nome || !email || !fone || !dataNascimento) {
       return toast.warn("Preencha todos os campos!");
     }
 
-    if (onEdit){
-    await axios 
-    .put("http//localhost:8800/" + onEdit.id, {
-      nome: user.nome.value,
-      email: user.email.value,
-      fone: user.fone.value,
-      data_nascimento: user.data_nascimento.value
-    })
-    .then(({data}) => toast.success(data))
-    .catch(({data})=> toast.error(data));
-  } else {
-    await axios
-    .post("http//localhost:8800/", {
-      nome: user.nome.value,
-      email: user.email.value,
-      fone: user.fone.value,
-      data_nascimento: user.data_nascimento.value,
-    })
-    .then(({data}) => toast.success(data))
-    .catch(({data})=> toast.error(data));
-  }
+    const payload = {
+      nome,
+      email,
+      fone,
+      data_nascimento: dataNascimento,
+    };
 
-  user.nome.value = "";
-  user.email.value = "";
-  user.fone.value = "";
-  user.data_nascimento.value = "";
-
-  setOnEdit(null);
-  getUsers();
+    try {
+      if (onEdit) {
+        const { data } = await axios.put(
+          `http://localhost:8800/${onEdit.id}`,
+          payload
+        );
+        toast.success(data);
+      } else {
+        const { data } = await axios.post(
+          "http://localhost:8800/",
+          payload
+        );
+        toast.success(data);
+      }
+      clearForm();
+      setOnEdit(null);
+      getUsers();
+    } catch (err) {
+      const message = err.response?.data || err.message;
+      toast.error(message);
+    }
   };
 
-  
   return (
-    <FormContainer ref={ref} onSubmit={handleSubmit}>
+    <FormContainer onSubmit={handleSubmit}>
       <InputArea>
         <Label>Nome</Label>
-        <Input name="nome" />
+        <Input
+          name="nome"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+        />
       </InputArea>
 
       <InputArea>
         <Label>E-mail</Label>
-        <Input name="email" type="email" />
+        <Input
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </InputArea>
 
       <InputArea>
         <Label>Telefone</Label>
-        <Input name="fone" />
+        <Input
+          name="fone"
+          value={fone}
+          onChange={(e) => setFone(e.target.value)}
+        />
       </InputArea>
 
       <InputArea>
         <Label>Data de Nascimento</Label>
-        <Input name="data_nascimento" type="date" />
+        <Input
+          name="data_nascimento"
+          type="date"
+          value={dataNascimento}
+          onChange={(e) => setDataNascimento(e.target.value)}
+        />
       </InputArea>
 
       <Button type="submit">SALVAR</Button>
